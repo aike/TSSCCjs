@@ -9,8 +9,7 @@
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components",
-    "test"
+    "bower_components"
   ],
   "dependencies": {
     "tss": "^0.94.2"
