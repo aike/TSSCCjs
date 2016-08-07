@@ -40,7 +40,6 @@ So it is recommended that to disable the extension when you do not play MML.
 
 ##CREDIT
 TSSCCjs program is licenced under MIT License.  
-GitHub: http://github.com/aike/tssccjs  
 Contact: twitter @aike1000  
 
 TSS - T'SoundSystem by toyoshim https://github.com/toyoshim/tss  

@@ -6,7 +6,7 @@
   "description": "Control-C MML Player",
   "main": "main.js",
   "license": "MIT",
-  "homepage": "https://github.com/aike/tssccjs",
+  "homepage": "https://github.com/aike/TSSCCjs",
   "ignore": [
     "**/.*",
     "node_modules",

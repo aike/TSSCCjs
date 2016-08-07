@@ -2,7 +2,7 @@
   "name": "tssccjs",
   "version": "1.0.0",
   "description": "Control-C MML Player",
-  "homepage": "https://github.com/aike/tssccjs",
+  "homepage": "https://github.com/aike/TSSCCjs",
   "main": "main.js",
   "scripts": {
     "test": "mocha tests/*"
