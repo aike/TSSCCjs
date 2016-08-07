@@ -6,12 +6,14 @@
   "description": "Control-C MML Player",
   "main": "main.js",
   "license": "MIT",
+  "homepage": "https://github.com/aike/tssccjs",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components"
   ],
   "dependencies": {
-    "tss": "^0.94.2"
+    "tss": "^0.94.2",
+    "uglify-js": "^1.3.5"
   }
 }

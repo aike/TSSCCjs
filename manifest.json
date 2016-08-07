@@ -1,0 +1,12 @@
+{
+  "manifest_version": 2,
+  "name": "TSSCCjs",
+  "description": "Control-C MML Player",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file://*]"],
+      "js": ["tsscc.min.js"]
+    }
+  ]
+}

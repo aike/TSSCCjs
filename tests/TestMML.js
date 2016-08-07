@@ -96,6 +96,13 @@ describe('MML Parser:', function() {
 	    assert(ret === expect);
 	});
 
+	it ("Comment", function() {
+		var ret = parser.compile('abc{ comment }def', false);
+		var expect = 'abcdef\n';
+	    assert(ret === expect);
+	});
+
+
 	it ("Two args", function() {
 		var ret = parser.compile('abs10cd', false);
 		var expect = 'abs10cd\n';

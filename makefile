@@ -5,7 +5,7 @@ help:
 	@echo "test  ... test script"
 
 clean:
-	rm -rf node_modules bower_components
+	rm -rf node_modules bower_components bin/tsscc.min.js bin/manifest.json
 
 init:
 	bower install
@@ -20,9 +20,12 @@ build:
 		bower_components/tss/js/tss/TString.js \
 		bower_components/tss/js/tss/TsdPlayer.js \
 		bower_components/tss/js/tss/TssCompiler.js \
+		MMLParser.js \
+		main.js \
 		| \
-	node ./bower_components/uglify-js/bin/uglifyjs \
-		--output tsscc.min.js
+		node ./bower_components/uglify-js/bin/uglifyjs \
+			--output bin/tsscc.min.js
+		cp manifest.json bin/manifest.json
 
 test:
 	npm test

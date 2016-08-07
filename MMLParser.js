@@ -160,9 +160,9 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 				a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
 			}
 
-		} else if (s.match(/^([lq])([+\-]?[0-9]+)/)) {
+		} else if (s.match(/^([l])([+\-]?[0-9]+)/)) {
 			// MML command with mandatory one arg
-			s = s.replace(/^([lq])([+\-]?[0-9]+)/, '');
+			s = s.replace(/^([l])([+\-]?[0-9]+)/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^([sv])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
@@ -170,9 +170,9 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^([sv])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^([hijkmnoprtuwxyz])([+\-]?[0-9]+)?/)) {
+		} else if (s.match(/^([hijkmnopqrtuwxyz])([+\-]?[0-9]+)?/)) {
 			// MML command with optional one arg
-			s = s.replace(/^([hijkmnoprstuvwxyz])([+\-]?[0-9]+)?/, '');
+			s = s.replace(/^([hijkmnopqrstuvwxyz])([+\-]?[0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^([abcdefg][+\-]?)([0-9]+)?/)) {
@@ -235,6 +235,10 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^([@])([0-9]+)/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
+		} else if (s.match(/^({[^}]*})/)) {
+			// comment
+			s = s.replace(/^({[^}]*})/, '');
+
 		} else if (s.match(/^(#OCTAVE|#VOLUME)(REVERSE|NORMAL)/)) {
 			s = s.replace(/^(#OCTAVE|#VOLUME)(REVERSE|NORMAL)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2]);
@@ -243,13 +247,17 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^(#TABLE)([0-9]+),(<[^>]*>)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
 
+		} else if (s.match(/^(#WAV)([0-9]+),(<[^>]*>)/)) {
+			s = s.replace(/^(#WAV)([0-9]+),(<[^>]*>)/, '');
+			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
+
 		} else if (s.match(/^(#FINENESS)([0-9]+)/)) {
 			s = s.replace(/^(#FINENESS)([0-9]+)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^(#TITLE)([0-9]+),(<[^>]*>)/)) {
-			s = s.replace(/^(#TITLE)([0-9]+),(<[^>]*>)/, '');
-			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
+		} else if (s.match(/^(#TITLE)(<[^>]*>)/)) {
+			s = s.replace(/^(#TITLE)(<[^>]*>)/, '');
+			a.push(['directive', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^(#END)/)) {
 			s = '';
@@ -459,7 +467,7 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 			// Check FM definition
 			var type = arr[i][0][1];
 			if (type === '#FM') {
-				s += '{ ' + arr[i][0][1] + ' ' + arr[i][0][2] + ' }\n';
+				// s += '{ ' + arr[i][0][1] + ' ' + arr[i][0][2] + ' }\n';
 				this.evalFmMacro(arr[i][0][2]);
 			}
 			continue;
@@ -530,5 +538,6 @@ MMLParser.prototype.dump = function(mml) {
 	console.log('=========================');
 }
 
-
-module.exports = MMLParser;
+if (typeof(module) != 'undefined') {
+	module.exports = MMLParser;
+}
