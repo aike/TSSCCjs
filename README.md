@@ -4,8 +4,8 @@ Ctrl-C MML Player Chrome extension
 
 ##FEATURES
  - Ctrl-C to play interface
- - play sound with TSS javascript sound driver
- - translate TSSCP MML to TSS MML
+ - play sound with [TSS javascript sound driver](https://github.com/toyoshim/tss)
+ - translate TSSCP type MML into TSS MML
  - support #A-#Z macro
  - support #FM macro
 
@@ -22,12 +22,15 @@ Ctrl-C MML Player Chrome extension
 ##BUILD
 
 download dependencies
+
     make init
 
 build runtime file into tssccjs/bin folder
+
     make build
 
 test
+
     make test
 
 
