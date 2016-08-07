@@ -5,7 +5,7 @@
   "homepage": "https://github.com/aike/TSSCCjs",
   "main": "main.js",
   "scripts": {
-    "test": "mocha tests/*"
+    "test": "mocha --require intelli-espower-loader tests/*"
   },
   "directories": {
     "test": "tests/"

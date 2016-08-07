@@ -108,7 +108,9 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 
 	var a = [];
 
-	s = s.replace(/ /g, '');
+	if (!s.match(/#TITLE/)) {
+		s = s.replace(/ /g, '');
+	}
 
 	while (true) {
 
@@ -255,9 +257,19 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^(#FINENESS)([0-9]+)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^(#TITLE)(<[^>]*>)/)) {
-			s = s.replace(/^(#TITLE)(<[^>]*>)/, '');
+		} else if (s.match(/^(#TITLE) *(<[^>]*>)/)) {
+			s = s.replace(/^(#TITLE) *(<[^>]*>)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2]);
+
+		} else if (s.match(/^(#CHANNEL)([0-9]+)/)) {
+			s = s.replace(/^(#CHANNEL)([0-9]+)/, '');
+
+		} else if (s.match(/^(#PRAGMA)(FAMICOM|GAMEBOY)/)) {
+			s = s.replace(/^(#PRAGMA)(FAMICOM|GAMEBOY)/, '');
+			a.push(['directive', RegExp.$1, RegExp.$2]);
+
+		} else if (s.match(/^(#MML)/)) {
+			s = s.replace(/^(#MML)/, '');
 
 		} else if (s.match(/^(#END)/)) {
 			s = '';
@@ -453,7 +465,7 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 			var type = arr[i][0][1];
 			if (type === '#TITLE') {
 				title = arr[i][0][2];
-			} else if (type === '#TABLE') {
+			} else if ((type === '#TABLE') || (type === '#WAV')) {
 				s += arr[i][0][1] + ' ' + arr[i][0][2] + ',' + arr[i][0][3] + '\n';
 			} else if (type !== '#FM') {
 				s += arr[i][0][1] + ' ' + arr[i][0][2] + '\n';
