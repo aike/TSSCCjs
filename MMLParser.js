@@ -14,6 +14,7 @@ var MMLParser = function() {
 	this.dump = '';
 	this.channel = 0;
 	this.asciiA = 'A'.charCodeAt(0);
+	this.commentMode = false;
 
 	this.FmNode = [];
 	this.FmPipe = -1;
@@ -74,6 +75,25 @@ MMLParser.prototype.resetChannelString = function() {
 	this.channel = 0;
 }
 
+MMLParser.prototype.expandWAVB = function(s) {
+	var ret = '';
+
+	if (s.length % 2 == 1) {
+		s = s + '0';
+	}
+
+	for (var i = 0; i < s.length; i += 2) {
+		if (i > 0) {
+			ret += ',';
+		}
+		var hex = s.substring(i, i + 2);
+		var num = parseInt(hex, 16) - 128;
+		ret += num.toString(10);
+	}
+
+	return '<' + ret + '>';
+}
+
 MMLParser.prototype.parse = function(mml) {
 	this.resetChannelString();
 	this.endParse = false;
@@ -111,6 +131,16 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 	if (!s.match(/#TITLE/)) {
 		s = s.replace(/ /g, '');
 	}
+
+	if (this.commentMode) {
+		if (s.match(/^[^}]*}/)) {
+			s = s.replace(/^[^}]*}/, '');
+			this.commentMode = false;
+		} else {
+			return [];
+		}
+	}
+
 
 	while (true) {
 
@@ -237,9 +267,14 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^([@])([0-9]+)/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
-		} else if (s.match(/^({[^}]*})/)) {
-			// comment
-			s = s.replace(/^({[^}]*})/, '');
+		} else if (s.match(/^{[^}]*}/)) {
+			// single line comment
+			s = s.replace(/^{[^}]*}/, '');
+
+		} else if (s.match(/^{[^}]*$/)) {
+			// multi line comment
+			s = s.replace(/^{[^}]*$/, '');
+			this.commentMode = true;
 
 		} else if (s.match(/^(#OCTAVE|#VOLUME)(REVERSE|NORMAL)/)) {
 			s = s.replace(/^(#OCTAVE|#VOLUME)(REVERSE|NORMAL)/, '');
@@ -252,6 +287,10 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 		} else if (s.match(/^(#WAV)([0-9]+),?(<[^>]*>)/)) {
 			s = s.replace(/^(#WAV)([0-9]+),?(<[^>]*>)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
+
+		} else if (s.match(/^(#WAVB)([0-9]+),?([0-9a-fA-F]+)/)) {
+			s = s.replace(/^(#WAVB)([0-9]+),?([0-9a-fA-F]+)/, '');
+			a.push(['directive', '#WAV', RegExp.$2, this.expandWAVB(RegExp.$3)]);
 
 		} else if (s.match(/^(#FINENESS)([0-9]+)/)) {
 			s = s.replace(/^(#FINENESS)([0-9]+)/, '');

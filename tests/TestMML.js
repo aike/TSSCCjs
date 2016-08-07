@@ -195,9 +195,31 @@ describe('MML Parser:', function() {
 	    assert(ret === expect);
 	});
 
-	it ("Comment", function() {
+	it ("WAVB macro", function() {
+		var ret = parser.compile('#WAVB0,8090a0b0c0d0e0f0f0e0d0c0b0a0908070605040302010000010203040506070;', false);
+		var expect = '#WAV 0,<0,16,32,48,64,80,96,112,112,96,80,64,48,32,16,0,-16,-32,-48,-64,-80,-96,-112,-128,-128,-112,-96,-80,-64,-48,-32,-16>\n';
+	    assert(ret === expect);
+	});
+
+	it ("Single line comment", function() {
 		var ret = parser.compile('abc{ comment }def', false);
 		var expect = 'abcdef\n';
+	    assert(ret === expect);
+	});
+
+	it ("Multi line comment", function() {
+		var ret, expect;
+
+		ret = parser.compile('abc{ str1 ; str2 }def', false);
+		expect = 'abc\ndef\n';
+	    assert(ret === expect);
+
+		ret = parser.compile('abc{ str1 \n  str2 }def', false);
+		expect = 'abcdef\n';
+	    assert(ret === expect);
+
+		ret = parser.compile('abc{ str1 \n  str2 \n str 3 }def', false);
+		expect = 'abcdef\n';
 	    assert(ret === expect);
 	});
 
