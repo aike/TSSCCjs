@@ -245,12 +245,12 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^(#OCTAVE|#VOLUME)(REVERSE|NORMAL)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2]);
 
-		} else if (s.match(/^(#TABLE)([0-9]+),(<[^>]*>)/)) {
-			s = s.replace(/^(#TABLE)([0-9]+),(<[^>]*>)/, '');
+		} else if (s.match(/^(#TABLE)([0-9]+),?(<[^>]*>)/)) {
+			s = s.replace(/^(#TABLE)([0-9]+),?(<[^>]*>)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^(#WAV)([0-9]+),(<[^>]*>)/)) {
-			s = s.replace(/^(#WAV)([0-9]+),(<[^>]*>)/, '');
+		} else if (s.match(/^(#WAV)([0-9]+),?(<[^>]*>)/)) {
+			s = s.replace(/^(#WAV)([0-9]+),?(<[^>]*>)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2, RegExp.$3]);
 
 		} else if (s.match(/^(#FINENESS)([0-9]+)/)) {

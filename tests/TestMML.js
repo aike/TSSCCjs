@@ -87,11 +87,19 @@ describe('MML directive:', function() {
 		var ret = parser.compile('#WAV0,<(127,-127),16,(-127,-127),16>;abc;', false);	
 		var expect = '#WAV 0,<(127,-127),16,(-127,-127),16>\nabc\n';
 	    assert(ret === expect);
+
+		var ret = parser.compile('#WAV0<(127,-127),16,(-127,-127),16>;abc;', false); // omit comma
+		var expect = '#WAV 0,<(127,-127),16,(-127,-127),16>\nabc\n'; // insert comma
+	    assert(ret === expect);
 	});
 
 	it ("#TABLE", function() {
 		var ret = parser.compile('#TABLE0,<(16,127),8,(127,0),136>;abc;', false);
 		var expect = '#TABLE 0,<(16,127),8,(127,0),136>\nabc\n';
+	    assert(ret === expect);
+
+		ret = parser.compile('#TABLE0<(16,127),8,(127,0),136>;abc;', false); // omit comma
+		expect = '#TABLE 0,<(16,127),8,(127,0),136>\nabc\n'; // insert comma
 	    assert(ret === expect);
 	});
 
