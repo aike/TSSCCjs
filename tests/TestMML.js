@@ -132,7 +132,7 @@ describe('MML directive:', function() {
 	});
 
 	it ("#END", function() {
-		var ret = parser.compile('abc#ENDdef;gab', false);
+		var ret = parser.compile('abc;#ENDdef;gab', false);
 		var expect = 'abc\n';
 	    assert(ret === expect);
 	});
@@ -149,7 +149,7 @@ describe('MML Parser:', function() {
 		parser = new MMLParser();
 	});
 
-	it ("Macro", function() {
+	it ("Static Macro", function() {
 		var ret = parser.parse('#A=cde; A');
 		var expect = [
 			[
@@ -161,7 +161,7 @@ describe('MML Parser:', function() {
 	    assert(to_s(ret) === to_s(expect));
 	});
 
-	it ("Transpose macro", function() {
+	it ("Note shift macro", function() {
 		var ret = parser.parse('#A=cde; A(5)');
 		var expect = [
 			[
@@ -173,7 +173,7 @@ describe('MML Parser:', function() {
 	    assert(to_s(ret) === to_s(expect));
 	});
 
-	it ("Transpose macro with Accidental", function() {
+	it ("Note shift macro with Accidental", function() {
 		var ret = parser.parse('#A=c+de-; A(5)');
 		var expect = [[
 			["mml","f+",""],
@@ -181,6 +181,24 @@ describe('MML Parser:', function() {
 			["mml","g+",""]
 		]];
 	    assert(to_s(ret) === to_s(expect));
+	});
+
+	it ("Static Macro (left)", function() {
+		var ret = parser.compile('#A=v;A10abc;', false);
+		var expect = 'v10abc\n';
+	    assert(ret === expect);
+	});
+
+	it ("Static Macro (right)", function() {
+		var ret = parser.compile('#A=10;abcvA;', false);
+		var expect = 'abcv10\n';
+	    assert(ret === expect);
+	});
+
+	it ("Static Macro (middle)", function() {
+		var ret = parser.compile('#A=10;abcvAefg;', false);
+		var expect = 'abcv10efg\n';
+	    assert(ret === expect);
 	});
 
 	it ("Compile MML", function() {
@@ -246,8 +264,7 @@ describe('MML Parser:', function() {
 		assert(a[26] == '#AA');
 		assert(a[51] == '#AZ');
 		assert(a[52] == '#BA');
-	})
-
+	});
 
 });
 

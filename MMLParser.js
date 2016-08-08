@@ -7,11 +7,10 @@
 //
 var MMLParser = function() {
 	this.macro = {};
-	this.transpose = [0];
 	this.endParse = false;
-	this.expandMacro = true;
+	this.expandMode = true;
 	this.noteShift = 0;
-	this.dump = '';
+	this.dumpString = '';
 	this.channel = 0;
 	this.asciiA = 'A'.charCodeAt(0);
 	this.commentMode = false;
@@ -104,7 +103,7 @@ MMLParser.prototype.parse = function(mml) {
 	for (var i = 0; i < lines.length; i++) {
 		var s = lines[i];
 		this.noteShift = 0;
-		var arr = this.parseLine(lines[i], 0);
+		var arr = this.parseLine(lines[i]);
 		if (arr.length > 0) {
 			ret.push(arr);
 		}
@@ -116,20 +115,53 @@ MMLParser.prototype.parse = function(mml) {
 	return ret;
 };
 
+MMLParser.prototype.expandMacro = function(s) {
+	if (this.commentMode) {
+		return s;
+	}
+	s = s.replace(/{[^}]*}/g, '');	// one line comment
+	s = s.replace(/{[^}]*$/, '{');	// nulti line comment
+	if (s.match(/^ *#/)) {			// directive line
+		return s;
+	}
 
-MMLParser.prototype.parseLine = function(s, transpose) {
+	var replaceCount = 0;
+	var r = s.match(/([A-Z])(\([+\-]?[0-9]+\))?/);
+	while (r) {
+		var shift_in = '';
+		var shift_out = '';
+		if (RegExp.$2 !== '') {
+			var range = parseInt(RegExp.$2.replace('(','').replace(')',''), 10);
+			shift_in = '@ns' +  String(range);
+			shift_out = '@ns' + String(-range);
+		}
+		s = s.substring(0,r.index) + shift_in + this.macro[RegExp.$1] + shift_out + s.substring(r.index + r[0].length);
+		r = s.match(/([A-Z])(\([+\-]?[0-9]+\))?/);
+
+		replaceCount++;
+		if (replaceCount > 100) {
+			break;
+		}
+	}
+
+	return s;
+}
+
+MMLParser.prototype.parseLine = function(s) {
 	var org_s = s;
 
 	this.endParse = false;
 
-	if (transpose === undefined) {
-		transpose = 0;
-	}
-
 	var a = [];
 
+	s = this.expandMacro(s);
+
 	if (!s.match(/#TITLE/)) {
+		// eliminate all spaces
 		s = s.replace(/ /g, '');
+	} else {
+		// eliminate string before title
+		s = s.replace(/^.*#TITLE/g, '#TITLE');
 	}
 
 	if (this.commentMode) {
@@ -143,27 +175,6 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 
 
 	while (true) {
-
-		if (this.expandMacro) {
-			while (s.match(/^([A-Z])(\([+\-]?[0-9]+\))?/)) {
-				// expand macro
-				var trans = 0;
-				if (RegExp.$2 !== '') {
-					trans = parseInt(RegExp.$2.replace('(','').replace(')',''), 10);
-				}
-				s = s.replace(/^([A-Z])(\([+\-]?[0-9]+\))?/, '');
-
-				var exp = this.parseLine(this.macro[RegExp.$1] + s, trans);
-				a = a.concat(exp);
-				s = '';
-			}
-		} else {
-			while (s.match(/^([A-Z])(\([+\-]?[0-9]+\))?/)) {
-				s = s.replace(/^([A-Z])(\([+\-]?[0-9]+\))?/, '');
-				a.push(['macro', RegExp.$1, RegExp.$2]);
-			}
-		}
-
 
 		var ext_s = s;
 
@@ -180,7 +191,7 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 		} else if (s.match(/^(ns)([+\-]?[0-9]+)/)) {
 			// two character command with one args
 			s = s.replace(/^(ns)([+\-]?[0-9]+)/, '');
-			if (!this.expandMacro) {
+			if (!this.expandMode) {
 				a.push(['exmml', RegExp.$1, RegExp.$2]);
 			}
 			this.noteShift = parseInt(RegExp.$2, 10);
@@ -188,7 +199,7 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 		} else if (s.match(/^(ml)([+\-]?[0-9]+)/)) {
 			// unsupported command
 			s = s.replace(/^(ml)([+\-]?[0-9]+)/, '');
-			if (!this.expandMacro) {
+			if (!this.expandMode) {
 				a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
 			}
 
@@ -197,9 +208,9 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^([l])([+\-]?[0-9]+)/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
-		} else if (s.match(/^([sv])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
+		} else if (s.match(/^([svx])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
 			// MML command with two args
-			s = s.replace(/^([sv])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
+			s = s.replace(/^([svx])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3]);
 
 		} else if (s.match(/^([hijkmnopqrtuwxyz])([+\-]?[0-9]+)?/)) {
@@ -211,7 +222,7 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			// note name
 			s = s.replace(/^([abcdefg][+\-]?)([0-9]+)?/, '');
 			var pitch = this.name2number[RegExp.$1];
-			pitch = (pitch + transpose + this.noteShift + 24) % 12;
+			pitch = (pitch + this.noteShift + 24) % 12;
 			a.push(['mml', this.number2name[pitch], RegExp.$2]);
 
 		} else if (s.match(/^([r])([0-9]*)/)) {
@@ -248,15 +259,36 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 			s = s.replace(/^([,.|$^()<>\/])/, '');
 			a.push(['mml', RegExp.$1]);
 
-		} else if (s.match(/^(@[a-z])([+\-]?[0-9]+)?/)) {
-			// @x arg
-			s = s.replace(/^(@[a-z])([+\-]?[0-9]+)?/, '');
+		} else if (s.match(/^(@ns)([+\-]?[0-9]+)/)) {
+			s = s.replace(/^(@ns)([+\-]?[0-9]+)/, '');
+			if (!this.expandMode) {
+				a.push(['exmml', RegExp.$1, RegExp.$2]);
+			}
+			this.noteShift += parseInt(RegExp.$2, 10);
+
+		} else if (s.match(/^(@[vio])([+\-]?[0-9]+)?,([+\-]?[0-9]+)/)) {
+			// @x arg1, arg2
+			s = s.replace(/^(@[vio])([+\-]?[0-9]+)?,([+\-]?[0-9]+)/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^(@[a-z])([+\-]?[0-9]+)?,([+\-]?[0-9]+)/)) {
+		} else if (s.match(/^(@[v])([+\-]?[0-9]+)?/)) {
+			// @x arg
+			s = s.replace(/^(@[v])([+\-]?[0-9]+)?/, '');
+			a.push(['mml', RegExp.$1, RegExp.$2]);
+
+		} else if (s.match(/^(@[a-z])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
 			// @x arg1, arg2
-			s = s.replace(/^(@[a-z])([+\-]?[0-9]+)?,([+\-]?[0-9]+)/, '');
-			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3]);
+			s = s.replace(/^(@[a-z])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
+			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2, RegExp.$3]);
+
+		} else if (s.match(/^(@kr|@ks|@ml@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
+			// @x arg1, arg2
+			s = s.replace(/^(@kr|@ks|@ml@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
+			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2, RegExp.$3]);
+
+		} else if (s.match(/^([_&*])/)) {
+			s = s.replace(/^([_&*])/, '');
+			a.push(['exmml(unsupported)', RegExp.$1]);
 
 		} else if (s.match(/^(%)([0-9]+)/)) {
 			// %x change module
@@ -265,6 +297,10 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 
 		} else if (s.match(/^([@])([0-9]+)/)) {
 			s = s.replace(/^([@])([0-9]+)/, '');
+			a.push(['mml', RegExp.$1, RegExp.$2]);
+
+		} else if (s.match(/^([~])([0-9]+)?/)) {
+			s = s.replace(/^([~])([0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^{[^}]*}/)) {
@@ -321,17 +357,26 @@ MMLParser.prototype.parseLine = function(s, transpose) {
 
 		} else if (s.match(/^#([A-Z])=(.*)/)) {
 			s = s.replace(/^#([A-Z])=(.*)/, '');
-			if (!this.expandMacro) {
+			if (!this.expandMode) {
 				a.push(['def', RegExp.$1, RegExp.$2]);
 			}
-//			console.log('#' + RegExp.$1 + '=' + RegExp.$2);
+			//console.log('#' + RegExp.$1 + '=' + RegExp.$2);
 			this.macro[RegExp.$1] = RegExp.$2;
+
+		} else if (s.match(/^(#FILTER)([0-9]+),?(<[^>]*>)/)) {
+			s = s.replace(/^(#FILTER)([0-9]+),?(<[^>]*>)/, '');
+			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
+
+		} else if (s.match(/^(#[A-Z]+)/)) {
+			s = s.replace(/^(#[A-Z]+)/, '');
+			a.push(['exmml(unsupported)', RegExp.$1]);
 
 		} else {
 			if (s !== '') {
 				console.log("parse error:[" + s + ']');
 				console.log('      >>> ' + org_s);
 				console.log('      >>> ' + ext_s);
+				throw new Error("parse error");
 			}
 			break;
 		}
@@ -469,17 +514,17 @@ MMLParser.prototype.evalFmMacroSub = function(a, nest, mode) {
 MMLParser.prototype.dumpFmMacro = function(s) {
 	var a = this.parseFmMacro(s);
 
-	this.dump = '';
+	this.dumpString = '';
 	this.dumpFmMacroSub(a, 0);
 
-	return this.dump;
+	return this.dumpString;
 }
 
 MMLParser.prototype.dumpFmMacroSub = function(a, nest) {
 	for (var i = 0; i < a.length; i++) {
 		if (this.isString(a[i])) {
 			if (a[i].match(/[A-Z]/)) {
-				this.dump += this.repeat(' ', nest * 4) + a[i] + '<--' + a[i + 1] + '--\n';
+				this.dumpString += this.repeat(' ', nest * 4) + a[i] + '<--' + a[i + 1] + '--\n';
 				i++;
 			}
 		} else {
@@ -552,6 +597,9 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 		for (; j < arr[i].length; j++) {
 			// mml command
 			for (var k = 1; k < arr[i][j].length; k++) {
+				if (arr[i][j][0] === 'exmml(unsupported)') {
+					continue;
+				}
 				s += arr[i][j][k];
 			}
 		}
@@ -570,10 +618,10 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 }
 
 MMLParser.prototype.dump = function(mml) {
-	var w = this.expandMacro;
-	this.expandMacro = false;
+	var w = this.expandMode;
+	this.expandMode = false;
 	var arr = this.parse(mml);
-	this.expandMacro = w;
+	this.expandMode = w;
 
 	console.log('=========================');
 	for (var i = 0; i < arr.length; i++) {
