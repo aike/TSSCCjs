@@ -296,9 +296,9 @@ MMLParser.prototype.parseLine = function(s) {
 			}
 			this.noteShift += parseInt(RegExp.$2, 10);
 
-		} else if (s.match(/^(@[vio])([+\-]?[0-9]+)?,([+\-]?[0-9]+)/)) {
+		} else if (s.match(/^(@[vio])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)/)) {
 			// @x arg1, arg2
-			s = s.replace(/^(@[vio])([+\-]?[0-9]+)?,([+\-]?[0-9]+)/, '');
+			s = s.replace(/^(@[vio])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3]);
 
 		} else if (s.match(/^(@[v])([+\-]?[0-9]+)?/)) {

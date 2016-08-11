@@ -55,6 +55,19 @@ describe('Macro:', function() {
 	    assert(ret === expect);
 	});
 
+	it ("Channel Strings", function() {
+		parser.resetChannelString();
+		var a = [];
+		for (var i = 0; i < 100; i++) {
+			a.push(parser.getChannelString());
+		}
+
+		assert(a[ 0] == '#A');
+		assert(a[25] == '#Z');
+		assert(a[26] == '#AA');
+		assert(a[51] == '#AZ');
+		assert(a[52] == '#BA');
+	});
 
 });
 

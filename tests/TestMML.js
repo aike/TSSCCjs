@@ -128,8 +128,7 @@ describe('MML:', function() {
 	    assert(ret === expect);
 	});
 
-
-	it ("Note name", function() {
+	it ("Note name abcdefg", function() {
 		var ret = parser.compile('cdefgab', false);
 		var expect = 'cdefgab\n';
 	    assert(ret === expect);
@@ -139,7 +138,7 @@ describe('MML:', function() {
 	    assert(ret === expect);
 	});
 
-	it ("Accidental mark", function() {
+	it ("Accidental mark +-", function() {
 		var ret = parser.compile('c+d+f+g+a+;d-e-g-a-b-', false);
 		var expect = 'c+d+f+g+a+\nc+d+f+g+a+\n';  // '-' regularized to '+'
 	    assert(ret === expect);
@@ -173,31 +172,124 @@ describe('MML:', function() {
 	    assert(ret === expect);
 	});
 
-
-
-
-	it ("Two args", function() {
-		var ret = parser.compile('abs10cd', false);
-		var expect = 'abs10cd\n';
-	    assert(ret === expect);
-
-		ret = parser.compile('abs10,10cd', false);
-		expect = 'abs10,10cd\n';
+	it ("Pitch modulation mp", function() {
+		var ret = parser.compile('mp65535,100,100,-128,100', false);
+		var expect = 'mp65535,100,100,-128,100\n';
 	    assert(ret === expect);
 	});
 
-	it ("Channel Strings", function() {
-		parser.resetChannelString();
-		var a = [];
-		for (var i = 0; i < 100; i++) {
-			a.push(parser.getChannelString());
-		}
+	it ("Note envelope nt", function() {
+		var ret = parser.compile('nt100,100', false);
+		var expect = 'nt100,100\n';
+	    assert(ret === expect);
+	});
 
-		assert(a[ 0] == '#A');
-		assert(a[25] == '#Z');
-		assert(a[26] == '#AA');
-		assert(a[51] == '#AZ');
-		assert(a[52] == '#BA');
+	it ("Panpot p", function() {
+		var ret = parser.compile('p', false);
+		var expect = 'p\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('p2', false);
+		var expect = 'p2\n';
+	    assert(ret === expect);
+	});
+
+
+	//////////////////////////////////////////////////////////
+	it ("Volume v", function() {
+		var ret = parser.compile('v', false);
+		var expect = 'v\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('v10', false);
+		var expect = 'v10\n';
+	    assert(ret === expect);
+	});
+
+	it ("Stereo volume v", function() {
+		var ret = parser.compile('v10,10c', false);
+		var expect = 'v10,10c\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('v10,c', false);
+		var expect = 'v10,c\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('v,10c', false);
+		var expect = 'v,10c\n';
+	    assert(ret === expect);
+	});
+
+	it ("Extnded volume @v", function() {
+		var ret = parser.compile('@v', false);
+		var expect = '@v\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('@v100', false);
+		var expect = '@v100\n';
+	    assert(ret === expect);
+	});
+
+	it ("Extended stereo volume @v", function() {
+		var ret = parser.compile('@v100,100c', false);
+		var expect = '@v100,100c\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('@v100,c', false);
+		var expect = '@v100,c\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('@v,100c', false);
+		var expect = '@v,100c\n';
+	    assert(ret === expect);
+	});
+
+	it ("Volume up/down ()", function() {
+		var ret = parser.compile('ab(c)ba', false);
+		var expect = 'ab(c)ba\n';
+	    assert(ret === expect);
+	});
+
+	// unsupported command in TSS JavaScript version
+	it ("Volume relative up ~ (ignore)", function() {
+		var ret = parser.compile('ab~cd', false);
+		var expect = 'abcd\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('ab~100cd', false);
+		var expect = 'abcd\n';
+	    assert(ret === expect);
+	});
+
+	// unsupported command in TSS JavaScript version
+	it ("Volume relative down _ (ignore)", function() {
+		var ret = parser.compile('ab_cd', false);
+		var expect = 'abcd\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('ab_100cd', false);
+		var expect = 'abcd\n';
+	    assert(ret === expect);
+	});
+
+	it ("Volume envelope na", function() {
+		var ret = parser.compile('na100,100c', false);
+		var expect = 'na100,100c\n';
+	    assert(ret === expect);
+	});
+
+	it ("Mode x", function() {
+		var ret = parser.compile('x1,1c', false);
+		var expect = 'x1,1c\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('x1,c', false);
+		var expect = 'x1,c\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('x,1c', false);
+		var expect = 'x,1c\n';
+	    assert(ret === expect);
 	});
 
 });
