@@ -1,4 +1,4 @@
-// test.js by aike
+// testMML.js by aike
 // licenced under MIT License.
 
 var assert = require("power-assert");
@@ -10,222 +10,58 @@ function to_s(json) {
 }
 
 
-describe('MML abstract syntax tree:', function() {
+describe('MML:', function() {
 	var parser;
 
 	before(function() {
 		parser = new MMLParser();
 	});
 
-	it ("Note", function() {
-		var ret = parser.parseLine('cde');
-		var expect = [
-			["mml","c",""],
-			["mml","d",""],
-			["mml","e",""]
-		];
-	    assert(to_s(ret) === to_s(expect));
-	});
 
-	it ("Multi line", function() {
-		var ret = parser.parse('cde; fg');
-		var expect = [
-			[
-				["mml","c",""],
-				["mml","d",""],
-				["mml","e",""]
-			],
-			[
-				["mml","f",""],
-				["mml","g",""],
-			]
-		];
-	    assert(to_s(ret) === to_s(expect));
-	});
-});
+	//////////////////////////////////////////////////////////
+	it ("Tempo t", function() {
+		var ret = parser.compile('t', false);
+		var expect = 't\n';
+	    assert(ret === expect);
 
-describe('MML directive:', function() {
-	var parser;
-	before(function() {
-		parser = new MMLParser();
-	});
-
-	it ("#MML", function() {
-		var ret = parser.compile('#MML;abcdef;', false);
-		var expect = 'abcdef\n';	// ignore
+		var ret = parser.compile('t120', false);
+		var expect = 't120\n';
 	    assert(ret === expect);
 	});
 
-	it ("#TITLE", function() {
-		var ret = parser.compile('#TITLE<song title string>;abc;', true);
-		var expect = '#TITLE <song title string>\n#CHANNEL 1\n#A\nabc\n';
-	    assert(ret === expect);
-
-		ret = parser.compile('abc;', true);
-		expect = '#TITLE <>\n#CHANNEL 1\n#A\nabc\n';
+	it ("Loop $", function() {
+		var ret = parser.compile('abc$def', false);
+		var expect = 'abc$def\n';
 	    assert(ret === expect);
 	});
 
-	it ("#CHANNEL", function() {
-		var ret = parser.compile('#CHANNEL20;abc;', true);	
-		var expect = '#TITLE <>\n#CHANNEL 1\n#A\nabc\n'; // generate correct number 
+	it ("Loop [|]", function() {
+		var ret = parser.compile('abc[def|gab]cde', false);
+		var expect = 'abc[def|gab]cde\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('abc[4def|gab]cde', false);
+		var expect = 'abc[4def|gab]cde\n';
 	    assert(ret === expect);
 	});
 
-	it ("#PRAGMA", function() {
-		var ret, expect;
-		ret = parser.compile('abc;#PRAGMAFAMICOM;def;', false);	
-		expect = '#PRAGMA FAMICOM\nabc\ndef\n';
+	it ("Loop /:/:/", function() {
+		var ret = parser.compile('abc/:def/gab:/cde', false);
+		var expect = 'abc/:def/gab:/cde\n';
 	    assert(ret === expect);
 
-		ret = parser.compile('abc;#PRAGMAGAMEBOY;def;', false);	
-		expect = '#PRAGMA GAMEBOY\nabc\ndef\n';
-	    assert(ret === expect);
-	});
-
-	it ("#WAV", function() {
-		var ret = parser.compile('#WAV0,<(127,-127),16,(-127,-127),16>;abc;', false);	
-		var expect = '#WAV 0,<(127,-127),16,(-127,-127),16>\nabc\n';
-	    assert(ret === expect);
-
-		var ret = parser.compile('#WAV0<(127,-127),16,(-127,-127),16>;abc;', false); // omit comma
-		var expect = '#WAV 0,<(127,-127),16,(-127,-127),16>\nabc\n'; // insert comma
+		var ret = parser.compile('abc/:4def/gab:/cde', false);
+		var expect = 'abc/:4def/gab:/cde\n';
 	    assert(ret === expect);
 	});
 
-	it ("#TABLE", function() {
-		var ret = parser.compile('#TABLE0,<(16,127),8,(127,0),136>;abc;', false);
-		var expect = '#TABLE 0,<(16,127),8,(127,0),136>\nabc\n';
-	    assert(ret === expect);
-
-		ret = parser.compile('#TABLE0<(16,127),8,(127,0),136>;abc;', false); // omit comma
-		expect = '#TABLE 0,<(16,127),8,(127,0),136>\nabc\n'; // insert comma
-	    assert(ret === expect);
-	});
-
-	it ("#OCTAVE", function() {
-		var ret, expect;
-		ret = parser.compile('abc;#OCTAVENORMAL;def;', false);	
-		expect = '#OCTAVE NORMAL\nabc\ndef\n';
-	    assert(ret === expect);
-
-		ret = parser.compile('abc;#OCTAVEREVERSE;def;', false);	
-		expect = '#OCTAVE REVERSE\nabc\ndef\n';
-	    assert(ret === expect);
-	});
-
-	it ("#VOLUME", function() {
-		var ret, expect;
-		ret = parser.compile('abc;#VOLUMENORMAL;def;', false);	
-		expect = '#VOLUME NORMAL\nabc\ndef\n';
-	    assert(ret === expect);
-
-		ret = parser.compile('abc;#VOLUMEREVERSE;def;', false);	
-		expect = '#VOLUME REVERSE\nabc\ndef\n';
-	    assert(ret === expect);
-	});
-
-	it ("#FINENESS", function() {
-		var ret = parser.compile('#FINENESS65535;abc;', false);	
-		var expect = '#FINENESS 65535\nabc\n';
-	    assert(ret === expect);
-	});
-
-	it ("#END", function() {
-		var ret = parser.compile('abc;#ENDdef;gab', false);
-		var expect = 'abc\n';
-	    assert(ret === expect);
-	});
-
-
-});
-
-
-
-describe('MML Parser:', function() {
-	var parser;
-
-	before(function() {
-		parser = new MMLParser();
-	});
-
-	it ("Static Macro", function() {
-		var ret = parser.parse('#A=cde; A');
-		var expect = [
-			[
-				["mml","c",""],
-				["mml","d",""],
-				["mml","e",""]
-			]
-		];
-	    assert(to_s(ret) === to_s(expect));
-	});
-
-	it ("Note shift macro", function() {
-		var ret = parser.parse('#A=cde; A(5)');
-		var expect = [
-			[
-				["mml","f",""],
-				["mml","g",""],
-				["mml","a",""]
-			]
-		];
-	    assert(to_s(ret) === to_s(expect));
-	});
-
-	it ("Note shift macro with Accidental", function() {
-		var ret = parser.parse('#A=c+de-; A(5)');
-		var expect = [[
-			["mml","f+",""],
-			["mml","g",""],
-			["mml","g+",""]
-		]];
-	    assert(to_s(ret) === to_s(expect));
-	});
-
-	it ("Static Macro (left)", function() {
-		var ret = parser.compile('#A=v;A10abc;', false);
-		var expect = 'v10abc\n';
-	    assert(ret === expect);
-	});
-
-	it ("Static Macro (right)", function() {
-		var ret = parser.compile('#A=10;abcvA;', false);
-		var expect = 'abcv10\n';
-	    assert(ret === expect);
-	});
-
-	it ("Static Macro (middle)", function() {
-		var ret = parser.compile('#A=10;abcvAefg;', false);
-		var expect = 'abcv10efg\n';
-	    assert(ret === expect);
-	});
-
-	it ("Compile MML", function() {
-		var ret = parser.compile('abcde', false);
-		var expect = 'abcde\n';
-	    assert(ret === expect);
-	});
-
-	it ("Compile MML with macro", function() {
-		var ret = parser.compile('#A=c+de-; A(5)', false);
-		var expect = 'f+gg+\n';
-	    assert(ret === expect);
-	});
-
-	it ("WAVB macro", function() {
-		var ret = parser.compile('#WAVB0,8090a0b0c0d0e0f0f0e0d0c0b0a0908070605040302010000010203040506070;', false);
-		var expect = '#WAV 0,<0,16,32,48,64,80,96,112,112,96,80,64,48,32,16,0,-16,-32,-48,-64,-80,-96,-112,-128,-128,-112,-96,-80,-64,-48,-32,-16>\n';
-	    assert(ret === expect);
-	});
-
-	it ("Single line comment", function() {
+	it ("Single line comment {}", function() {
 		var ret = parser.compile('abc{ comment }def', false);
 		var expect = 'abcdef\n';
 	    assert(ret === expect);
 	});
 
-	it ("Multi line comment", function() {
+	it ("Multi line comment {}", function() {
 		var ret, expect;
 
 		ret = parser.compile('abc{ str1 ; str2 }def', false);
@@ -240,6 +76,104 @@ describe('MML Parser:', function() {
 		expect = 'abcdef\n';
 	    assert(ret === expect);
 	});
+
+	//////////////////////////////////////////////////////////
+	it ("Sustain s", function() {
+		var ret = parser.compile('s', false);
+		var expect = 's\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('s100', false);
+		var expect = 's100\n';
+	    assert(ret === expect);
+	});
+
+	it ("Extended sustain s", function() {
+		var ret = parser.compile('s100,100', false);
+		var expect = 's100,100\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('s100,-100', false);
+		var expect = 's100,-100\n';
+	    assert(ret === expect);
+	});
+
+	it ("Module %", function() {
+		var ret = parser.compile('%5', false);
+		var expect = '%5 \n';
+	    assert(ret === expect);
+	});
+
+	it ("Timbre @", function() {
+		var ret = parser.compile('@5', false);
+		var expect = '@5\n';
+	    assert(ret === expect);
+	});
+
+
+	//////////////////////////////////////////////////////////
+	it ("Octave o", function() {
+		var ret = parser.compile('o', false);
+		var expect = 'o\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('o4', false);
+		var expect = 'o4\n';
+	    assert(ret === expect);
+	});
+
+	it ("Octave up/down <>", function() {
+		var ret = parser.compile('ab<c>ba', false);
+		var expect = 'ab<c>ba\n';
+	    assert(ret === expect);
+	});
+
+
+	it ("Note name", function() {
+		var ret = parser.compile('cdefgab', false);
+		var expect = 'cdefgab\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('c10d10e10f10g10a10b10', false);
+		var expect = 'c10d10e10f10g10a10b10\n';
+	    assert(ret === expect);
+	});
+
+	it ("Accidental mark", function() {
+		var ret = parser.compile('c+d+f+g+a+;d-e-g-a-b-', false);
+		var expect = 'c+d+f+g+a+\nc+d+f+g+a+\n';  // '-' regularized to '+'
+	    assert(ret === expect);
+
+		var ret = parser.compile('c+5d+5f+5g+5a+5;d-5e-5g-5a-5b-5', false);
+		var expect = 'c+5d+5f+5g+5a+5\nc+5d+5f+5g+5a+5\n';  // '-' regularized to '+'
+	    assert(ret === expect);
+	});
+
+	it ("Rest r", function() {
+		var ret = parser.compile('r', false);
+		var expect = 'r\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('r100', false);
+		var expect = 'r100\n';
+	    assert(ret === expect);
+	});
+
+	it ("Detune k", function() {
+		var ret = parser.compile('k', false);
+		var expect = 'k\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('k100', false);
+		var expect = 'k100\n';
+	    assert(ret === expect);
+
+		var ret = parser.compile('k-100', false);
+		var expect = 'k-100\n';
+	    assert(ret === expect);
+	});
+
+
 
 
 	it ("Two args", function() {
@@ -267,4 +201,7 @@ describe('MML Parser:', function() {
 	});
 
 });
+
+
+
 

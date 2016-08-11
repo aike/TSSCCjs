@@ -11,7 +11,7 @@ function to_s(json) {
 
 
 
-describe('FmMacro Parser:', function() {
+describe('FM Macro:', function() {
 	var parser;
 
 	before(function() {
