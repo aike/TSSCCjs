@@ -1,4 +1,4 @@
-// testAST.js by aike
+// TestAST.js by aike
 // licenced under MIT License.
 
 var assert = require("power-assert");

@@ -1,4 +1,4 @@
-// testMML.js by aike
+// TestMML.js by aike
 // licenced under MIT License.
 
 var assert = require("power-assert");
@@ -289,6 +289,18 @@ describe('MML:', function() {
 
 		var ret = parser.compile('x,1c', false);
 		var expect = 'x,1c\n';
+	    assert(ret === expect);
+	});
+
+	it ("FM input @i", function() {
+		var ret = parser.compile('@i8,2', false);
+		var expect = '@i8,2\n';
+	    assert(ret === expect);
+	});
+
+	it ("FM output @o", function() {
+		var ret = parser.compile('@o1,2', false);
+		var expect = '@o1,2\n';
 	    assert(ret === expect);
 	});
 

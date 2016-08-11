@@ -1,4 +1,4 @@
-// testDirective.js by aike
+// TestDirective.js by aike
 // licenced under MIT License.
 
 var assert = require("power-assert");

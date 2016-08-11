@@ -1,4 +1,4 @@
-// testMacro.js by aike
+// TestMacro.js by aike
 // licenced under MIT License.
 
 var assert = require("power-assert");
