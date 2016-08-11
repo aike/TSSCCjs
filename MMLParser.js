@@ -12,6 +12,7 @@ var MMLParser = function() {
 	this.noteShift = 0;
 	this.dumpString = '';
 	this.channel = 0;
+	this.fmchannel = 0;
 	this.asciiA = 'A'.charCodeAt(0);
 	this.commentMode = false;
 
@@ -42,6 +43,27 @@ var MMLParser = function() {
 					};
 };
 
+
+MMLParser.prototype.initialize = function() {
+	this.macro = {};
+	this.endParse = false;
+	this.expandMode = true;
+	this.noteShift = 0;
+	this.dumpString = '';
+	this.channel = 0;
+	this.fmchannel = 0;
+	this.asciiA = 'A'.charCodeAt(0);
+	this.commentMode = false;
+
+	this.FmNode = [];
+	this.FmPipe = -1;
+	this.FmOps = 0;
+	this.FmMode = false;
+	this.FmCount = 0;
+
+	this.resetChannelString();
+};
+
 MMLParser.prototype.isString = function(obj) {
     return typeof (obj) == "string" || obj instanceof String;
 };
@@ -52,7 +74,7 @@ MMLParser.prototype.repeat = function(c, n) {
 		s += c;
 	}
 	return s;
-}
+};
 
 MMLParser.prototype.getChannelString = function() {
 	var ret;
@@ -68,11 +90,11 @@ MMLParser.prototype.getChannelString = function() {
 	this.channel++;
 
 	return ret;
-}
+};
 
 MMLParser.prototype.resetChannelString = function() {
 	this.channel = 0;
-}
+};
 
 MMLParser.prototype.expandWAVB = function(s) {
 	var ret = '';
@@ -91,11 +113,12 @@ MMLParser.prototype.expandWAVB = function(s) {
 	}
 
 	return '<' + ret + '>';
-}
+};
 
 MMLParser.prototype.parse = function(mml) {
-	this.resetChannelString();
-	this.endParse = false;
+
+	this.initialize();
+
 	var ret = [];
 	mml = mml.replace(/\n/g, '');
 	var lines = mml.split(";");
@@ -174,7 +197,9 @@ MMLParser.prototype.parseLine = function(s) {
 	}
 
 
+	var cnt = 0;
 	while (true) {
+		cnt++;
 
 		var ext_s = s;
 
@@ -196,9 +221,9 @@ MMLParser.prototype.parseLine = function(s) {
 			}
 			this.noteShift = parseInt(RegExp.$2, 10);
 
-		} else if (s.match(/^(ml)([+\-]?[0-9]+)/)) {
+		} else if (s.match(/^(ml|ph)([+\-]?[0-9]+)/)) {
 			// unsupported command
-			s = s.replace(/^(ml)([+\-]?[0-9]+)/, '');
+			s = s.replace(/^(ml|ph)([+\-]?[0-9]+)/, '');
 			if (!this.expandMode) {
 				a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
 			}
@@ -259,6 +284,11 @@ MMLParser.prototype.parseLine = function(s) {
 			s = s.replace(/^([,.|$^()<>\/])/, '');
 			a.push(['mml', RegExp.$1]);
 
+		} else if (s.match(/^(@kr|@ks|@ml|@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
+			// @x arg1, arg2
+			s = s.replace(/^(@kr|@ks|@ml|@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
+			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2, RegExp.$3]);
+
 		} else if (s.match(/^(@ns)([+\-]?[0-9]+)/)) {
 			s = s.replace(/^(@ns)([+\-]?[0-9]+)/, '');
 			if (!this.expandMode) {
@@ -281,13 +311,8 @@ MMLParser.prototype.parseLine = function(s) {
 			s = s.replace(/^(@[a-z])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
 			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^(@kr|@ks|@ml@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
-			// @x arg1, arg2
-			s = s.replace(/^(@kr|@ks|@ml@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
-			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2, RegExp.$3]);
-
-		} else if (s.match(/^([_&*])/)) {
-			s = s.replace(/^([_&*])/, '');
+		} else if (s.match(/^([&*])/)) {
+			s = s.replace(/^([&*])/, '');
 			a.push(['exmml(unsupported)', RegExp.$1]);
 
 		} else if (s.match(/^(%)([0-9]+)/)) {
@@ -299,9 +324,9 @@ MMLParser.prototype.parseLine = function(s) {
 			s = s.replace(/^([@])([0-9]+)/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
-		} else if (s.match(/^([~])([0-9]+)?/)) {
-			s = s.replace(/^([~])([0-9]+)?/, '');
-			a.push(['mml', RegExp.$1, RegExp.$2]);
+		} else if (s.match(/^([~_])([0-9]+)?/)) {
+			s = s.replace(/^([~_])([0-9]+)?/, '');
+			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^{[^}]*}/)) {
 			// single line comment
@@ -395,6 +420,7 @@ MMLParser.prototype.parseFmMacro = function(s) {
 	var modulator_str = '';
 	var carrier;
 	var level;
+	var org_s = s;
 
 	while (s.length > 0) {
 
@@ -415,14 +441,22 @@ MMLParser.prototype.parseFmMacro = function(s) {
 				nest++;
 				s = s.replace(/^([A-Z])([0-8])?\(/, '');
 
-			} else if (s.match(/^([A-Z])/)) {
+			} else if (s.match(/^([A-Z])([0-8])?/)) {
 				// carrier without modulator
 				a.push([RegExp.$1, '0', '']);
-				s = s.replace(/^([A-Z])/, '');
+				s = s.replace(/^([A-Z])([0-8])?/, '');
 
 			} else if (s.match(/^\+/)) {
 				a.push('+');
 				s = s.replace(/^\+/, '');
+
+			} else {
+				if (s !== '') {
+					console.log("FM macro parse error:[" + s + ']');
+					console.log('      >>> ' + org_s);
+					//throw new Error("parse error");
+				}
+				break;
 			}
 
 		} else {
@@ -499,6 +533,7 @@ MMLParser.prototype.evalFmMacroSub = function(a, nest, mode) {
 					node[3] = 0;
 				} else {
 					node[2] = mode;
+					this.fmchannel++;
 				}
 				i++;
 			} else if (a[i] === '+') {
@@ -557,7 +592,6 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 		}
 	}
 
-
 	for (var i = 0; i < arr.length; i++) {		
 		if (arr[i][0][0] === 'directive') {
 			// Check FM definition
@@ -610,7 +644,7 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 	if (addDirective) {
 		// inject mandatory directives
 		ret += '#TITLE ' + title + '\n';
-		ret += '#CHANNEL ' + Math.min(this.channel, 26) + '\n';
+		ret += '#CHANNEL ' + Math.min(this.channel - this.fmchannel, 26) + '\n';
 	}
 	ret += s;
 

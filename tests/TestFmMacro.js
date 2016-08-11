@@ -59,6 +59,15 @@ describe('FmMacro Parser:', function() {
 	    assert(ret === expect);
 	});
 
+	it ("Ignore invalid number", function() {
+   		var ret = parser.dumpFmMacro('D5(C(B2(A2)))'); // correct:D5(C(B2(A)))
+		var expect = '    D<--5--\n'
+				   + '            C<--3--\n'
+				   + '                    B<--2--\n'
+				   + '                            A<--0--\n'
+	    assert(ret === expect);
+	});
+
 	it ("Eval one carrier", function() {
     	//	D<--5--
         //    		A<--0--

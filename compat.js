@@ -15,7 +15,6 @@ if (!window['Log']) {
     error: function(m) { console.error(m); if (Log.enabled) Log.log.push(m); },
     fatal: function(m) { console.fatal(m); if (Log.enabled) Log.log.push(m); }
 */
-
     info: function(m) {},
     warn: function(m) {},
     error: function(m) { if (Log.enabled) Log.log.push(m); },
