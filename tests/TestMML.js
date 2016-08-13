@@ -140,11 +140,11 @@ describe('MML:', function() {
 
 	it ("Accidental mark +-", function() {
 		var ret = parser.compile('c+d+f+g+a+;d-e-g-a-b-', false);
-		var expect = 'c+d+f+g+a+\nc+d+f+g+a+\n';  // '-' regularized to '+'
+		var expect = 'c+d+f+g+a+\nd-e-g-a-b-\n';
 	    assert(ret === expect);
 
 		var ret = parser.compile('c+5d+5f+5g+5a+5;d-5e-5g-5a-5b-5', false);
-		var expect = 'c+5d+5f+5g+5a+5\nc+5d+5f+5g+5a+5\n';  // '-' regularized to '+'
+		var expect = 'c+5d+5f+5g+5a+5\nd-5e-5g-5a-5b-5\n';
 	    assert(ret === expect);
 	});
 

@@ -15,6 +15,8 @@ var MMLParser = function() {
 	this.fmchannel = 0;
 	this.asciiA = 'A'.charCodeAt(0);
 	this.commentMode = false;
+	this.octUp = '<';
+	this.octDown = '>';
 
 	this.FmNode = [];
 	this.FmPipe = -1;
@@ -22,24 +24,25 @@ var MMLParser = function() {
 	this.FmMode = false;
 	this.FmCount = 0;
 
-	this.number2name = ['a','a+','b','c','c+','d','d+','e','f','f+','g','g+'];
-	this.name2number = {'a' :0,
-						'a+':1,
-						'b-':1,
-						'b' :2,
-						'c' :3,
-						'c+':4,
-						'd-':4,
-						'd' :5,
-						'd+':6,
-						'e-':6,
-						'e' :7,
-						'f' :8,
-						'f+':9,
-						'g-':9,
-						'g' :10,
-						'g+':11,
-						'a-':11
+	this.number2name = ['c','c+','d','d+','e','f','f+','g','g+','a','a+','b'];
+	this.name2number = {
+						'c' :0,
+						'c+':1,
+						'd-':1,
+						'd' :2,
+						'd+':3,
+						'e-':3,
+						'e' :4,
+						'f' :5,
+						'f+':6,
+						'g-':6,
+						'g' :7,
+						'g+':8,
+						'a-':8,
+						'a' :9,
+						'a+':10,
+						'b-':10,
+						'b' :11
 					};
 };
 
@@ -54,6 +57,8 @@ MMLParser.prototype.initialize = function() {
 	this.fmchannel = 0;
 	this.asciiA = 'A'.charCodeAt(0);
 	this.commentMode = false;
+	this.octUp = '<';
+	this.octDown = '>';
 
 	this.FmNode = [];
 	this.FmPipe = -1;
@@ -67,6 +72,32 @@ MMLParser.prototype.initialize = function() {
 MMLParser.prototype.isString = function(obj) {
     return typeof (obj) == "string" || obj instanceof String;
 };
+
+MMLParser.prototype.octave = function(n) {
+	return Math.floor(n / 12);
+}
+
+MMLParser.prototype.noteMod12 = function(n) {
+	while (n < 0) {
+		n += 12;
+	}
+	return n % 12;
+}
+
+MMLParser.prototype.adjustOctave = function(a, offset) {
+	var oct = this.octave(this.noteShift + offset);
+	if (oct > 0) {
+		for (var i = 0; i < oct; i++) {
+			a.push(['mml',this.octUp]);
+			this.noteShift -= 12;
+		}
+	} else if (oct < 0) {
+		for (var i = 0; i < -oct; i++) {
+			a.push(['mml',this.octDown]);
+			this.noteShift += 12;
+		}
+	}
+}
 
 MMLParser.prototype.repeat = function(c, n) {
 	var s = '';
@@ -148,36 +179,48 @@ MMLParser.prototype.expandMacro = function(s) {
 		return s;
 	}
 
+	this.noteShift = 0;
 	var replaceCount = 0;
-	var r = s.match(/([A-Z])(\([+\-]?[0-9]+\))?/);
+	var r = s.match(/([A-Z])(\([+\-]?[0-9]+\)|\([a-g][+\-]?\))?/);
 	while (r) {
-		var shift_in = '';
-		var shift_out = '';
-		if (RegExp.$2 !== '') {
-			var range = parseInt(RegExp.$2.replace('(','').replace(')',''), 10);
+		var shift_in;
+		var shift_out;
+		var nameStr = RegExp.$1;
+		var rangeStr = RegExp.$2.replace('(','').replace(')','');
+		var range;
+		if (rangeStr !== '') {
+			if (rangeStr.match(/[+\-]?[0-9]+/)) {
+				range = parseInt(rangeStr, 10);
+			} else {
+				range = this.name2number[rangeStr];
+			}
 			shift_in = '@ns' +  String(range);
 			shift_out = '@ns' + String(-range);
+		} else {
+			shift_in = '';
+			shift_out = '';
 		}
-		s = s.substring(0,r.index) + shift_in + this.macro[RegExp.$1] + shift_out + s.substring(r.index + r[0].length);
-		r = s.match(/([A-Z])(\([+\-]?[0-9]+\))?/);
+		s = s.substring(0,r.index) + shift_in + this.macro[nameStr] + shift_out + s.substring(r.index + r[0].length);
+
+		r = s.match(/([A-Z])(\([+\-]?[0-9]+\)|\([a-g][+\-]?\))?/);
+		nameStr = RegExp.$1;
+		rangeStr = RegExp.$2.replace('(','').replace(')','');
 
 		replaceCount++;
 		if (replaceCount > 100) {
 			break;
 		}
 	}
-
 	return s;
 }
 
 MMLParser.prototype.parseLine = function(s) {
 	var org_s = s;
-
 	this.endParse = false;
-
 	var a = [];
 
 	s = this.expandMacro(s);
+	this.noteShift = 0;
 
 	if (!s.match(/#TITLE/)) {
 		// eliminate all spaces
@@ -246,9 +289,14 @@ MMLParser.prototype.parseLine = function(s) {
 		} else if (s.match(/^([abcdefg][+\-]?)([0-9]+)?/)) {
 			// note name
 			s = s.replace(/^([abcdefg][+\-]?)([0-9]+)?/, '');
-			var pitch = this.name2number[RegExp.$1];
-			pitch = (pitch + this.noteShift + 24) % 12;
-			a.push(['mml', this.number2name[pitch], RegExp.$2]);
+			if (this.noteShift === 0) {
+				a.push(['mml', RegExp.$1, RegExp.$2]);
+			} else {
+				var pitch = this.name2number[RegExp.$1];
+				this.adjustOctave(a, pitch);
+				var newPitch = pitch + this.noteShift;
+				a.push(['mml', this.number2name[this.noteMod12(newPitch)], RegExp.$2]);
+			}
 
 		} else if (s.match(/^([r])([0-9]*)/)) {
 			// rest
@@ -263,25 +311,41 @@ MMLParser.prototype.parseLine = function(s) {
 		} else if (s.match(/^(\/:)([0-9]*)/)) {
 			// repeat start
 			s = s.replace(/^(\/:)([0-9]*)/, '');
+			this.adjustOctave(a, 0);
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^(:\/)/)) {
 			// repeat end
 			s = s.replace(/^(:\/)/, '');
+			this.adjustOctave(a, 0);
 			a.push(['mml', RegExp.$1]);
 
 		} else if (s.match(/^(\[)([0-9]*)/)) {
 			// repeat start
 			s = s.replace(/^(\[)([0-9]*)/, '');
+			this.adjustOctave(a, 0);
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^(\])/)) {
 			// repeat end
 			s = s.replace(/^(\])/, '');
+			this.adjustOctave(a, 0);
 			a.push(['mml', RegExp.$1]);
 
-		} else if (s.match(/^([,.|$^()<>\/])/)) {
-			s = s.replace(/^([,.|$^()<>\/])/, '');
+		} else if (s.match(/^([<>])/)) {
+			if (this.noteshift === 0) {
+				a.push(['mml', RegExp.$1]);
+			} else {
+				if (RegExp.$1 === this.octUp) {
+					this.noteShift += 12;
+				} else {
+					this.noteShift -= 12;		
+				}
+			}
+			s = s.replace(/^([<>])/, '');
+
+		} else if (s.match(/^([,.|$^()\/])/)) {
+			s = s.replace(/^([,.|$^()\/])/, '');
 			a.push(['mml', RegExp.$1]);
 
 		} else if (s.match(/^(@kr|@ks|@ml|@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
@@ -340,6 +404,10 @@ MMLParser.prototype.parseLine = function(s) {
 		} else if (s.match(/^(#OCTAVE|#VOLUME)(REVERSE|NORMAL)/)) {
 			s = s.replace(/^(#OCTAVE|#VOLUME)(REVERSE|NORMAL)/, '');
 			a.push(['directive', RegExp.$1, RegExp.$2]);
+			if (RegExp.$2 === 'REVERSE') {
+				this.octUp = '>';
+				this.octDown = '<';
+			}
 
 		} else if (s.match(/^(#TABLE)([0-9]+),?(<[^>]*>)/)) {
 			s = s.replace(/^(#TABLE)([0-9]+),?(<[^>]*>)/, '');

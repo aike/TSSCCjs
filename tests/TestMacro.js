@@ -37,15 +37,39 @@ describe('Macro:', function() {
 	});
 
 
-	it ("Note shift macro", function() {
-		var ret = parser.compile('#A=cde; A(5)', false);
-		var expect = 'fga\n';
+	it ("Shift note macro", function() {
+        var ret = parser.compile('#A=cdef;A(0)A(-2)A(2)A(e-)', false);
+      	var expect = 'cdef>a+<cdd+def+gd+fgg+\n';
 	    assert(ret === expect);
 	});
 
-	it ("Note shift macro with accidental", function() {
+	it ("Shift note macro with accidental", function() {
 		var ret = parser.compile('#A=c+de-; A(5)', false);
 		var expect = 'f+gg+\n';
+	    assert(ret === expect);
+	});
+
+	it ("Shift note macro octave up", function() {
+		var ret = parser.compile('#A=b<cd; A(1)', false);
+		var expect = '<cc+d+\n';
+	    assert(ret === expect);
+	});
+
+	it ("Shift note macro octave reverse", function() {
+		var ret = parser.compile('#OCTAVE REVERSE; #A=b>cd; A(1)', false);
+		var expect = '#OCTAVE REVERSE\n>cc+d+\n';
+	    assert(ret === expect);
+	});
+
+	it ("Shift note with repeat []", function() {
+		var ret = parser.compile('ab<[4c]', false);
+		var expect = 'ab<[4c]\n';
+	    assert(ret === expect);
+	});
+
+	it ("Shift note with repeat /: :/", function() {
+		var ret = parser.compile('ab</:4c:/', false);
+		var expect = 'ab</:4c:/\n';
 	    assert(ret === expect);
 	});
 

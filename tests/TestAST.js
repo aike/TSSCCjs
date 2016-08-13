@@ -55,7 +55,7 @@ describe('AST:', function() {
 	    assert(to_s(ret) === to_s(expect));
 	});
 
-	it ("Note shift macro", function() {
+	it ("Shift note macro", function() {
 		var ret = parser.parse('#A=cde; A(5)');
 		var expect = [
 			[
@@ -67,7 +67,7 @@ describe('AST:', function() {
 	    assert(to_s(ret) === to_s(expect));
 	});
 
-	it ("Note shift macro with accidental", function() {
+	it ("Shift note macro with accidental", function() {
 		var ret = parser.parse('#A=c+de-; A(5)');
 		var expect = [[
 			["mml","f+",""],
