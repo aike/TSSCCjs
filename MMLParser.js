@@ -12,7 +12,6 @@ var MMLParser = function() {
 	this.noteShift = 0;
 	this.dumpString = '';
 	this.channel = 0;
-	this.fmchannel = 0;
 	this.asciiA = 'A'.charCodeAt(0);
 	this.commentMode = false;
 	this.octUp = '<';
@@ -54,7 +53,6 @@ MMLParser.prototype.initialize = function() {
 	this.noteShift = 0;
 	this.dumpString = '';
 	this.channel = 0;
-	this.fmchannel = 0;
 	this.asciiA = 'A'.charCodeAt(0);
 	this.commentMode = false;
 	this.octUp = '<';
@@ -602,7 +600,6 @@ MMLParser.prototype.evalFmMacroSub = function(a, nest, mode) {
 					node[3] = 0;
 				} else {
 					node[2] = mode;
-					this.fmchannel++;
 				}
 				i++;
 			} else if (a[i] === '+') {
@@ -713,7 +710,7 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 	if (addDirective) {
 		// inject mandatory directives
 		ret += '#TITLE ' + title + '\n';
-		ret += '#CHANNEL ' + Math.min(this.channel - this.fmchannel, 26) + '\n';
+		ret += '#CHANNEL ' + Math.min(this.channel, 26) + '\n';
 	}
 	ret += s;
 
