@@ -271,19 +271,14 @@ MMLParser.prototype.parseLine = function(s) {
 				a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
 			}
 
-		} else if (s.match(/^([l])([+\-]?[0-9]+)/)) {
-			// MML command with mandatory one arg
-			s = s.replace(/^([l])([+\-]?[0-9]+)/, '');
-			a.push(['mml', RegExp.$1, RegExp.$2]);
-
 		} else if (s.match(/^([svx])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
 			// MML command with two args
 			s = s.replace(/^([svx])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^([hijkmnopqrtuwxyz])([+\-]?[0-9]+)?/)) {
+		} else if (s.match(/^([hijklmnopqrtuwxyz])([+\-]?[0-9]+)?/)) {
 			// MML command with optional one arg
-			s = s.replace(/^([hijkmnopqrstuvwxyz])([+\-]?[0-9]+)?/, '');
+			s = s.replace(/^([hijklmnopqrstuvwxyz])([+\-]?[0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^([abcdefg][+\-]?)([0-9]+)?/)) {
