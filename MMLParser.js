@@ -207,7 +207,7 @@ MMLParser.prototype.expandMacro = function(s) {
 		rangeStr = RegExp.$2.replace('(','').replace(')','');
 
 		replaceCount++;
-		if (replaceCount > 100) {
+		if (replaceCount > 300) {
 			break;
 		}
 	}
@@ -226,8 +226,8 @@ MMLParser.prototype.parseLine = function(s) {
 		// eliminate all spaces
 		s = s.replace(/ /g, '');
 	} else {
-		// eliminate string before title
-		s = s.replace(/^.*#TITLE/g, '#TITLE');
+		// eliminate string around title
+		s = s.replace(/^.*#TITLE[^<]*/g, '#TITLE');
 	}
 
 	if (this.commentMode) {
