@@ -327,6 +327,12 @@ MMLParser.prototype.parseLine = function(s) {
 			this.adjustOctave(a, 0);
 			a.push(['mml', RegExp.$1]);
 
+		} else if (s.match(/^(\$)/)) {
+			// endless repeat
+			s = s.replace(/^(\$)/, '');
+			this.adjustOctave(a, 0);
+			a.push(['mml', RegExp.$1]);
+
 		} else if (s.match(/^([<>])/)) {
 			if (this.noteshift === 0) {
 				a.push(['mml', RegExp.$1]);
@@ -339,8 +345,8 @@ MMLParser.prototype.parseLine = function(s) {
 			}
 			s = s.replace(/^([<>])/, '');
 
-		} else if (s.match(/^([,.|$^()\/])/)) {
-			s = s.replace(/^([,.|$^()\/])/, '');
+		} else if (s.match(/^([,.|^()\/])/)) {
+			s = s.replace(/^([,.|^()\/])/, '');
 			a.push(['mml', RegExp.$1]);
 
 		} else if (s.match(/^(@kr|@ks|@ml|@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {

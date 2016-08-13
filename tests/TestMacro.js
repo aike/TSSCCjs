@@ -73,6 +73,12 @@ describe('Macro:', function() {
 	    assert(ret === expect);
 	});
 
+	it ("Shift note with repeat $", function() {
+		var ret = parser.compile('ab<$c', false);
+		var expect = 'ab<$c\n';
+	    assert(ret === expect);
+	});
+
 	it ("WAVB macro", function() {
 		var ret = parser.compile('#WAVB0,8090a0b0c0d0e0f0f0e0d0c0b0a0908070605040302010000010203040506070;', false);
 		var expect = '#WAV 0,<0,16,32,48,64,80,96,112,112,96,80,64,48,32,16,0,-16,-32,-48,-64,-80,-96,-112,-128,-128,-112,-96,-80,-64,-48,-32,-16>\n';
