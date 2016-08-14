@@ -41,8 +41,10 @@
 			if (ret === null) {
 				console.log("MML compile error");
 			} else {
-			    looper.setChannel(master);
-				player.play(ret);
+				setTimeout(function() {
+				    looper.setChannel(master);
+					player.play(ret);
+				}, 300);
 			}
 		}
 	}

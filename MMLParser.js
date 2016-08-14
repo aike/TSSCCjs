@@ -262,12 +262,16 @@ MMLParser.prototype.parseLine = function(s) {
 			}
 			this.noteShift = parseInt(RegExp.$2, 10);
 
-		} else if (s.match(/^(ml|ph)([+\-]?[0-9]+)/)) {
+		} else if (s.match(/^(ph)([+\-]?[0-9]+)/)) {
 			// unsupported command
-			s = s.replace(/^(ml|ph)([+\-]?[0-9]+)/, '');
-			if (!this.expandMode) {
-				a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
-			}
+			s = s.replace(/^(ph)([+\-]?[0-9]+)/, '');
+			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
+
+		} else if (s.match(/^(ml)([+\-]?[0-9]+)/)) {
+			// multiple
+			s = s.replace(/^(ml)([+\-]?[0-9]+)/, '');
+			//a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2]);
+			a.push(['mml', RegExp.$1, RegExp.$2]);
 
 		} else if (s.match(/^([svx])([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
 			// MML command with two args
@@ -325,9 +329,9 @@ MMLParser.prototype.parseLine = function(s) {
 			this.adjustOctave(a, 0);
 			a.push(['mml', RegExp.$1]);
 
-		} else if (s.match(/^(\$)/)) {
+		} else if (s.match(/^([$|/])/)) {
 			// endless repeat
-			s = s.replace(/^(\$)/, '');
+			s = s.replace(/^([$|/])/, '');
 			this.adjustOctave(a, 0);
 			a.push(['mml', RegExp.$1]);
 
@@ -343,8 +347,8 @@ MMLParser.prototype.parseLine = function(s) {
 			}
 			s = s.replace(/^([<>])/, '');
 
-		} else if (s.match(/^([,.|^()\/])/)) {
-			s = s.replace(/^([,.|^()\/])/, '');
+		} else if (s.match(/^([,.^()])/)) {
+			s = s.replace(/^([,.^()])/, '');
 			a.push(['mml', RegExp.$1]);
 
 		} else if (s.match(/^(@kr|@ks|@ml|@apn)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
@@ -710,7 +714,7 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 	if (addDirective) {
 		// inject mandatory directives
 		ret += '#TITLE ' + title + '\n';
-		ret += '#CHANNEL ' + Math.min(this.channel, 26) + '\n';
+		ret += '#CHANNEL ' + this.channel + '\n';
 	}
 	ret += s;
 
