@@ -667,7 +667,9 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 		}
 	}
 
-	for (var i = 0; i < arr.length; i++) {		
+	for (var i = 0; i < arr.length; i++) {
+		var l = '';
+
 		if (arr[i][0][0] === 'directive') {
 			// Check FM definition
 			var type = arr[i][0][1];
@@ -680,26 +682,24 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 
 		if (addDirective) {
 			// add channel name (e.g. "#A")
-			s += this.getChannelString() + '\n';
+			l += this.getChannelString() + '\n';
 		}
 
 		var j = 0
 		if (arr[i][j][1] == '%') {
 			// prioritize change module command (e.g. %3)
 			// more than FM definition
-			s += arr[i][j][1] + arr[i][j][2];
+			l += arr[i][j][1] + arr[i][j][2];
 			j++;
 		}
 
-		if (addDirective) {
-			if (this.FmMode) {
-				// inject FM definition
-				var node = this.FmNode[this.FmCount];
-				s += '@i' + node[0] + ',' + node[1] + '@o' + node[2] + ',' + node[3];
-				this.FmCount++;
-				if (this.FmCount >= this.FmOps) {
-					this.FmMode = false;
-				}
+		if (this.FmMode) {
+			// inject FM definition
+			var node = this.FmNode[this.FmCount];
+			l += '@i' + node[0] + ',' + node[1] + '@o' + node[2] + ',' + node[3];
+			this.FmCount++;
+			if (this.FmCount >= this.FmOps) {
+				this.FmMode = false;
 			}
 		}
 
@@ -709,10 +709,20 @@ MMLParser.prototype.compile = function(mml, addDirective) {
 				if (arr[i][j][0] === 'exmml(unsupported)') {
 					continue;
 				}
-				s += arr[i][j][k];
+				l += arr[i][j][k];
 			}
 		}
-		s += '\n';
+
+		if (l.match(/\$[^abcdefgr]*$/)) {
+			console.log("infinite loop detected:[" + l.replace('\n', ' ') + ']');
+			throw new Error("infinite loop error");
+		}
+
+		s += l + '\n';
+	}
+
+	if (s === '') {
+		return '';
 	}
 
 	var ret = '';

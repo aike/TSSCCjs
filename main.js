@@ -36,6 +36,10 @@
 			if (e.shiftKey) {
 				console.log(tssmml);
 			}
+			if (tssmml === '') {
+				console.log('MML not found');
+				return;
+			}
 
 			var ret = tsc.compile(tssmml);
 			if (ret === null) {
