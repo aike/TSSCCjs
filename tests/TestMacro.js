@@ -36,6 +36,11 @@ describe('Macro:', function() {
 	    assert(ret === expect);
 	});
 
+	it ("Static Macro after comment", function() {
+		var ret = parser.compile('#A=def;{;}abcA;', false);
+		var expect = 'abcdef\n';
+	    assert(ret === expect);
+	});
 
 	it ("Shift note macro", function() {
         var ret = parser.compile('#A=cdef;A(0)A(-2)A(2)A(e-)', false);

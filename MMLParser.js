@@ -169,7 +169,12 @@ MMLParser.prototype.parse = function(mml) {
 
 MMLParser.prototype.expandMacro = function(s) {
 	if (this.commentMode) {
-		return s;
+		if (s.match(/^[^}]*}/)) {
+			s = s.replace(/^[^}]*}/, '');
+			this.commentMode = false;
+		} else {
+			return s;
+		}
 	}
 	s = s.replace(/{[^}]*}/g, '');	// one line comment
 	s = s.replace(/{[^}]*$/, '{');	// nulti line comment
