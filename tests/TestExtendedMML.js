@@ -29,6 +29,16 @@ describe('TCP Extended MML:', function() {
 	    assert(ret === expect);
 	});
 
+	it ("Note shift ns", function() {
+		var ret = parser.compile('ns4c;', false);
+		var expect = 'e\n';
+	    assert(ret === expect);
+
+		ret = parser.compile('nsc;', false);
+		expect = 'c\n';
+	    assert(ret === expect);
+	});
+
 });
 
 describe('ATCP Extended MML:', function() {

@@ -204,13 +204,12 @@ MMLParser.prototype.expandMacro = function(s) {
 			shift_out = '';
 		}
 		s = s.substring(0,r.index) + shift_in + this.macro[nameStr] + shift_out + s.substring(r.index + r[0].length);
-
 		r = s.match(/([A-Z])(\([+\-]?[0-9]+\)|\([a-g][+\-]?\))?/);
 		nameStr = RegExp.$1;
 		rangeStr = RegExp.$2.replace('(','').replace(')','');
 
 		replaceCount++;
-		if (replaceCount > 300) {
+		if (replaceCount > 1000) {
 			break;
 		}
 	}
@@ -242,7 +241,6 @@ MMLParser.prototype.parseLine = function(s) {
 		}
 	}
 
-
 	var cnt = 0;
 	while (true) {
 		cnt++;
@@ -263,13 +261,17 @@ MMLParser.prototype.parseLine = function(s) {
 			s = s.replace(/^(nt)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
 			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2, RegExp.$3]);
 
-		} else if (s.match(/^(ns)([+\-]?[0-9]+)/)) {
+		} else if (s.match(/^(ns)([+\-]?[0-9]+)?/)) {
 			// two character command with one args
-			s = s.replace(/^(ns)([+\-]?[0-9]+)/, '');
+			s = s.replace(/^(ns)([+\-]?[0-9]+)?/, '');
 			if (!this.expandMode) {
 				a.push(['exmml', RegExp.$1, RegExp.$2]);
 			}
-			this.noteShift = parseInt(RegExp.$2, 10);
+			if (RegExp.$2 !== '') {
+				this.noteShift = parseInt(RegExp.$2, 10);
+			} else {
+				this.noteShift = 0;
+			}
 
 		} else if (s.match(/^(ph)([+\-]?[0-9]+)/)) {
 			// unsupported command
