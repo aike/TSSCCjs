@@ -25,6 +25,7 @@ var MMLParser = function() {
 
 	this.number2name = ['c','c+','d','d+','e','f','f+','g','g+','a','a+','b'];
 	this.name2number = {
+						'b+':0,
 						'c' :0,
 						'c+':1,
 						'd-':1,
@@ -32,6 +33,8 @@ var MMLParser = function() {
 						'd+':3,
 						'e-':3,
 						'e' :4,
+						'f-':4,
+						'e+':5,
 						'f' :5,
 						'f+':6,
 						'g-':6,
@@ -41,7 +44,8 @@ var MMLParser = function() {
 						'a' :9,
 						'a+':10,
 						'b-':10,
-						'b' :11
+						'b' :11,
+						'c-':11
 					};
 };
 
