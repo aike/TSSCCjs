@@ -178,9 +178,10 @@ describe('MML:', function() {
 	    assert(ret === expect);
 	});
 
+	// unsupported command in TSS JavaScript version
 	it ("Note envelope nt", function() {
 		var ret = parser.compile('nt100,100', false);
-		var expect = 'nt100,100\n';
+		var expect = '\n';	
 	    assert(ret === expect);
 	});
 

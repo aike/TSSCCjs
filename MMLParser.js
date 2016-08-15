@@ -254,10 +254,14 @@ MMLParser.prototype.parseLine = function(s) {
 			s = s.replace(/^(mp)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3, RegExp.$4, RegExp.$5, RegExp.$6]);
 
-		} else if (s.match(/^(na|nt)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
+		} else if (s.match(/^(na)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
 			// two character command with two args
-			s = s.replace(/^(na|nt)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
+			s = s.replace(/^(na)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
 			a.push(['mml', RegExp.$1, RegExp.$2, RegExp.$3]);
+
+		} else if (s.match(/^(nt)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/)) {
+			s = s.replace(/^(nt)([+\-]?[0-9]+)?(,[+\-]?[0-9]+)?/, '');
+			a.push(['exmml(unsupported)', RegExp.$1, RegExp.$2, RegExp.$3]);
 
 		} else if (s.match(/^(ns)([+\-]?[0-9]+)/)) {
 			// two character command with one args
