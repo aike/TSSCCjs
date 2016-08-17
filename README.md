@@ -11,7 +11,7 @@ Ctrl-C MML Player Chrome extension
 
 ##MML EXAMPLE
 
-    #TITLE <TSSCCjs's Theme>;
+    #TITLE <TSSCCjs's Theme by aike CC-BY>;
     t165;#A=dr8d16e16f2.r8gf8e8f8e.d.ec.d.efr8f16g16a2.r8b-a8g8d8fr8fr8fgr8gr8;
     #M=d.a2r8g.c+2r8c+.d.ef2.rd.a2r8g.c2r8c+.g.df2.r;#B=ar8a16g16a2.r8ga<d8c.>a
     .<c>a.a+.<c>a.b-16<c16d2.r8c.>a+ar8ar8a;#N=a.d8>a8.<d8.f8er8e8e8ef8g.a8a+8g
@@ -61,6 +61,7 @@ So it is recommended that to disable the extension when you do not play MML.
 
 ##CREDIT
 TSSCCjs program is licenced under MIT License.  
+TSSCCjs's Theme MML is licenced under CC-BY License.  
 Contact: twitter @aike1000  
 
 TSS - T'SoundSystem by toyoshim https://github.com/toyoshim/tss  
