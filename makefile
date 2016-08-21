@@ -25,7 +25,18 @@ build:
 		| \
 		node ./bower_components/uglify-js/bin/uglifyjs \
 			--output bin/tsscc.min.js
-		cp manifest.json bin/manifest.json
+		cp manifest.json bin/
+		cp icons/tsscc16.png bin/
+		cp icons/tsscc48.png bin/
+		cp icons/tsscc128.png bin/
+
+store:
+	cp bin/tsscc.min.js   zip/tsscc/
+	cp bin/manifest.json  zip/tsscc/
+	cp icons/tsscc16.png  zip/tsscc/
+	cp icons/tsscc48.png  zip/tsscc/
+	cp icons/tsscc128.png zip/tsscc/
+	cd zip; zip -r tsscc.zip tsscc/
 
 test:
 	npm test

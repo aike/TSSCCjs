@@ -1,8 +1,14 @@
 {
   "manifest_version": 2,
-  "name": "TSSCCjs",
+  "name": "TSS Ctrl-C MML Player",
+  "short_name": "TSSCC",
   "description": "Control-C MML Player",
-  "version": "1.0.1",
+  "version": "1.0.2",
+  "icons": {
+    "16": "tsscc16.png",
+    "48": "tsscc48.png",
+    "128": "tsscc128.png"
+  },
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "file://*"],
