@@ -31,6 +31,10 @@ Ctrl-C MML Player Chrome extension
 
 
 ##INSTALL
+Install from Chrome web store:  
+https://goo.gl/0UJQcT
+
+Developer mode manual install:
 1. Open chrome://extensions in your browser
 1. Enable "Developer mode" checkbox
 1. Click "Load unpacked extension…"
