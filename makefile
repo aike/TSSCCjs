@@ -23,7 +23,7 @@ build:
 		MMLParser.js \
 		main.js \
 		| \
-		node ./bower_components/uglify-js/bin/uglifyjs \
+		node ./node_modules/uglify-js/bin/uglifyjs \
 			--output bin/tsscc.min.js
 		cp manifest.json bin/
 		cp icons/tsscc16.png bin/
@@ -31,6 +31,8 @@ build:
 		cp icons/tsscc128.png bin/
 
 store:
+	mkdir -p zip/tsscc/
+	rm -f zip/tsscc.zip
 	cp bin/tsscc.min.js   zip/tsscc/
 	cp bin/manifest.json  zip/tsscc/
 	cp icons/tsscc16.png  zip/tsscc/

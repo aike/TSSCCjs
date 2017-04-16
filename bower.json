@@ -13,7 +13,6 @@
     "bower_components"
   ],
   "dependencies": {
-    "tss": "^0.94.2",
     "uglify-js": "^1.3.5"
   }
 }
