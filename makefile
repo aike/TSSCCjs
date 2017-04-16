@@ -5,21 +5,21 @@ help:
 	@echo "test  ... test script"
 
 clean:
-	rm -rf node_modules bower_components bin/tsscc.min.js bin/manifest.json
+	rm -rf node_modules tss bin/tsscc.min.js bin/manifest.json
 
 init:
-	bower install
 	npm install
+	git clone https://github.com/toyoshim/tss.git
 
 build:
 	cat \
 		compat.js \
-		bower_components/tss/js/tss/AudioLooper.js \
-		bower_components/tss/js/tss/MasterChannel.js \
-		bower_components/tss/js/tss/TssChannel.js \
-		bower_components/tss/js/tss/TString.js \
-		bower_components/tss/js/tss/TsdPlayer.js \
-		bower_components/tss/js/tss/TssCompiler.js \
+		tss/js/tss/AudioLooper.js \
+		tss/js/tss/MasterChannel.js \
+		tss/js/tss/TssChannel.js \
+		tss/js/tss/TString.js \
+		tss/js/tss/TsdPlayer.js \
+		tss/js/tss/TssCompiler.js \
 		MMLParser.js \
 		main.js \
 		| \
