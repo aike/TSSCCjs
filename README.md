@@ -2,14 +2,14 @@ TSSCCjs
 ====
 Ctrl-C MML Player Chrome extension
 
-##FEATURES
+## FEATURES
  - Ctrl-C to play interface
  - play sound with [TSS javascript sound driver](https://github.com/toyoshim/tss)
  - translate TSSCP type MML into TSS MML
  - support #A-#Z macro
  - support #FM macro
 
-##MML EXAMPLE
+## MML EXAMPLE
 
     #TITLE <TSSCCjs's Theme by aike CC-BY>;
     t165;#A=l4dr8d16e16f2.r8gf8e8f8e.d.ec.d.efr8f16g16a2.r8b-a8g8d8fr8fr8fgr8gr8
@@ -30,15 +30,15 @@ Ctrl-C MML Player Chrome extension
     6$[16crrrrrcrcrrrrrcr][16crccrcrccrccrcrc];
 
 
-##INSTALL
+## INSTALL
 Install from Chrome web store:  
 https://goo.gl/0UJQcT
 
-##KEY ASSIGN
+## KEY ASSIGN
  - Ctrl-C Play/Stop
  - Command-C Play/Stop (Mac OS)
 
-##BUILD
+## BUILD
 
 download dependencies
 
@@ -53,11 +53,11 @@ test
     make test
 
 
-##NOTE
+## NOTE
 TSSCCjs makes your browser's performance slightly slow.
 So it is recommended that to disable the extension when you do not play MML.
 
-##CREDIT
+## CREDIT
 TSSCCjs program is licenced under MIT License.  
 TSSCCjs's Theme MML is licenced under CC-BY License.  
 Contact: twitter @aike1000  
