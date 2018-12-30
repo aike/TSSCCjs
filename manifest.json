@@ -3,7 +3,7 @@
   "name": "TSS Ctrl-C MML Player",
   "short_name": "TSSCC",
   "description": "Control-C MML Player",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "icons": {
     "16": "tsscc16.png",
     "48": "tsscc48.png",

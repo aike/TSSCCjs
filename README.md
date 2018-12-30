@@ -58,8 +58,8 @@ TSSCCjs makes your browser's performance slightly slow.
 So it is recommended that to disable the extension when you do not play MML.
 
 ## CREDIT
-TSSCCjs program is licenced under MIT License.  
-TSSCCjs's Theme MML is licenced under CC-BY License.  
+TSSCCjs program is licensed under MIT License.  
+TSSCCjs's Theme MML is licensed under CC-BY License.  
 Contact: twitter @aike1000  
 
 TSS - T'SoundSystem by toyoshim https://github.com/toyoshim/tss  
